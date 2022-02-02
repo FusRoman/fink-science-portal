@@ -1761,7 +1761,7 @@ def query_db():
             "",
             to_evaluate,
             "*",
-            0, True, True
+            0, False, False
         )
         # extract objectId and times
         pdf_ = extract_rowkey_information(results)
