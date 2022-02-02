@@ -947,11 +947,11 @@ def query_main_table_from_rowkey(client, rowkeys, grouped=False):
     else:
         to_evaluate = ""
         for rowkey in rowkeys:
-            to_evaluate += "key:key:{},".format(rowkey)
+            to_evaluate += "{},".format(rowkey)
 
         results = client.scan(
-            "",
             to_evaluate,
+            "",
             "*",
             0, False, False
         )
