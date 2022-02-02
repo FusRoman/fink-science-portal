@@ -929,20 +929,31 @@ def extract_rowkey_information(results):
 
     return pdf
 
-def query_main_table_from_rowkey(client, rowkeys):
+def query_main_table_from_rowkey(client, rowkeys, grouped=False):
     """ Query main table based on a list of rowkey
     """
-    # Get data from the main table
-    results = java.util.TreeMap()
-    for rowkey in rowkeys:
-        to_evaluate = "key:key:{}".format(rowkey)
+    if not grouped:
+        results = java.util.TreeMap()
+        for rowkey in rowkeys:
+            to_evaluate = "key:key:{}".format(rowkey)
 
-        result = client.scan(
+            result = client.scan(
+                "",
+                to_evaluate,
+                "*",
+                0, False, False
+            )
+            results.putAll(result)
+    else:
+        to_evaluate = ""
+        for rowkey in rowkeys:
+            to_evaluate += "key:key:{},".format(rowkey)
+
+        results = client.scan(
             "",
             to_evaluate,
             "*",
             0, False, False
         )
-        results.putAll(result)
 
     return results
