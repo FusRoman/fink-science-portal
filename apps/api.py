@@ -1727,13 +1727,16 @@ def query_db():
                 "",
                 to_evaluate,
                 "*",
-                0, True, True
+                0, False, False
             )
 
         # extract objectId and times
-        objectids = [i[1]['i:objectId'] for i in results.items()]
-        times = [float(i[1]['key:key'].split('_')[1]) for i in results.items()]
-        pdf_ = pd.DataFrame({'oid': objectids, 'jd': times})
+        # objectids = [i[1]['i:objectId'] for i in results.items()]
+        # times = [float(i[1]['key:key'].split('_')[1]) for i in results.items()]
+        objectids = [i[1]['i:objectId_jd'].split('_')[0] for i in results.items()]
+        rowkeys = [i[1]['i:objectId_jd'] for i in results.items()]
+        times = [float(i[1]['i:objectId_jd'].split('_')[1]) for i in results.items()]
+        pdf_ = pd.DataFrame({'oid': objectids, 'jd': times, 'rowkeys': rowkeys})
 
         # Filter by time - logic to be improved...
         if startdate is not None:
@@ -1744,8 +1747,8 @@ def query_db():
 
         # Get data from the main table
         results = java.util.TreeMap()
-        for oid, jd in zip(pdf_['oid'].values, pdf_['jd'].values):
-            to_evaluate = "key:key:{}_{}".format(oid, jd)
+        for rowkey in pdf_['rowkeys'].values:
+            to_evaluate = "key:key:{}".format(rowkey)
 
             result = client.scan(
                 "",
