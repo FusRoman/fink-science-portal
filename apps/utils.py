@@ -929,9 +929,15 @@ def extract_rowkey_information(results):
 
     return pdf
 
-def query_main_table_from_rowkey(client, rowkeys, grouped=False):
+def query_main_table_from_rowkey(client, rowkeys, grouped=False, minimal=False):
     """ Query main table based on a list of rowkey
     """
+    if minimal:
+        columns = 'i:objectId,i:ra,i:dec,i:jd,i:ndethist,i:drb,i:jdstarthist,i:classtar,'
+        columns += 'd:cdsxmatch,d:roid,d:mulens,d:snn_snia_vs_nonia,d:snn_sn_vs_all,d:rf_kn_vs_nonkn,d:rf_snia_vs_nonia,d:tracklet'
+    else:
+        columns = '*'
+
     if not grouped:
         results = java.util.TreeMap()
         for rowkey in rowkeys:
@@ -940,7 +946,7 @@ def query_main_table_from_rowkey(client, rowkeys, grouped=False):
             result = client.scan(
                 "",
                 to_evaluate,
-                "*",
+                columns,
                 0, False, False
             )
             results.putAll(result)
@@ -952,7 +958,7 @@ def query_main_table_from_rowkey(client, rowkeys, grouped=False):
         results = client.scan(
             to_evaluate,
             "",
-            "*",
+            columns,
             0, False, False
         )
 

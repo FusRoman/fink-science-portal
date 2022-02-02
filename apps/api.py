@@ -1766,7 +1766,7 @@ def query_db():
         # extract objectId and times
         pdf_ = extract_rowkey_information(results)
         results = query_main_table_from_rowkey(
-            client, pdf_['rowkeys'].values, grouped=True
+            client, pdf_['rowkeys'].values, grouped=True, minimal=True
         )
         schema_client = client.schema()
 
