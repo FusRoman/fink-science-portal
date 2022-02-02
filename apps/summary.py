@@ -547,7 +547,11 @@ def store_query(name):
             "*",
             0, True, True
         )
-        schema_client_sso = clientSSO.schema()
+        pdf_ = extract_rowkey_information(results)
+        results = query_main_table_from_rowkey(
+            client, pdf_['rowkeys'].values
+        )
+        schema_client_sso = client.schema()
         pdfsso = format_hbase_output(
             results, schema_client_sso,
             group_alerts=False, truncated=False, extract_color=False
@@ -567,7 +571,11 @@ def store_query(name):
             "*",
             0, True, True
         )
-        schema_client_tracklet = clientTRCK.schema()
+        pdf_ = extract_rowkey_information(results)
+        results = query_main_table_from_rowkey(
+            client, pdf_['rowkeys'].values
+        )
+        schema_client_tracklet = client.schema()
         pdftracklet = format_hbase_output(
             results, schema_client_tracklet,
             group_alerts=False, truncated=False, extract_color=False
