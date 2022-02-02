@@ -933,7 +933,7 @@ def query_main_table_from_rowkey(client, rowkeys, grouped=False, minimal=False):
     """ Query main table based on a list of rowkey
     """
     if minimal:
-        columns = 'i:objectId,i:ra,i:dec,i:jd,i:ndethist,i:drb,i:jdstarthist,i:classtar,'
+        columns = 'i:objectId,i:ra,i:dec,i:jd,i:ndethist,i:drb,i:jdstarthist,i:classtar,i:fid,'
         columns += 'd:cdsxmatch,d:roid,d:mulens,d:snn_snia_vs_nonia,d:snn_sn_vs_all,d:rf_kn_vs_nonkn,d:rf_snia_vs_nonia,d:tracklet'
     else:
         columns = '*'
