@@ -1872,7 +1872,10 @@ def latest_objects():
             ),
             "*", 0, True, True
         )
-        schema_client = clientTNS.schema()
+        pdf_ = extract_rowkey_information(results)
+        results = query_main_table_from_rowkey(
+            client, pdf_['rowkeys'].values
+        )
         group_alerts = True
     elif request.json['class'].startswith('(SIMBAD)') or request.json['class'] != 'allclasses':
         if request.json['class'].startswith('(SIMBAD)'):
@@ -1894,7 +1897,10 @@ def latest_objects():
             ),
             "*", 0, False, False
         )
-        schema_client = clientS.schema()
+        pdf_ = extract_rowkey_information(results)
+        results = query_main_table_from_rowkey(
+            client, pdf_['rowkeys'].values
+        )
         group_alerts = False
     elif request.json['class'] == 'allclasses':
         clientT.setLimit(nalerts)
@@ -1908,8 +1914,13 @@ def latest_objects():
             "*",
             0, True, True
         )
-        schema_client = clientT.schema()
+        pdf_ = extract_rowkey_information(results)
+        results = query_main_table_from_rowkey(
+            client, pdf_['rowkeys'].values
+        )
         group_alerts = False
+
+    schema_client = client.schema()
 
     # We want to return alerts
     pdfs = format_hbase_output(results, schema_client, group_alerts=group_alerts)
