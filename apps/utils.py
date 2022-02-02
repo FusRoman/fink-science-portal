@@ -18,6 +18,7 @@ import pandas as pd
 import gzip
 import io
 import requests
+import java
 
 from astropy.io import fits
 from astroquery.mpc import MPC
@@ -917,3 +918,31 @@ def Vmag(alpha, H, G1, G2):
     """ Only phase part
     """
     return H - 2.5 * np.log10(G1 * phi1(alpha) + G2 * phi2(alpha) + (1 - G1 - G2) * phi3(alpha))
+
+def extract_rowkey_information(results):
+    """ Extract main table rowkey information from a query to an index table
+    """
+    objectids = [i[1]['i:objectId_jd'].split('_')[0] for i in results.items()]
+    rowkeys = [i[1]['i:objectId_jd'] for i in results.items()]
+    times = [float(i[1]['i:objectId_jd'].split('_')[1]) for i in results.items()]
+    pdf = pd.DataFrame({'oid': objectids, 'jd': times, 'rowkeys': rowkeys})
+
+    return pdf
+
+def query_main_table_from_rowkey(client, rowkeys):
+    """ Query main table based on a list of rowkey
+    """
+    # Get data from the main table
+    results = java.util.TreeMap()
+    for rowkey in rowkeys:
+        to_evaluate = "key:key:{}".format(rowkey)
+
+        result = client.scan(
+            "",
+            to_evaluate,
+            "*",
+            0, False, False
+        )
+        results.putAll(result)
+
+    return results

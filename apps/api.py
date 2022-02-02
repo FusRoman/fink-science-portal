@@ -33,6 +33,7 @@ from apps.utils import format_hbase_output
 from apps.utils import extract_cutouts
 from apps.utils import get_superpixels
 from apps.utils import get_miriade_data
+from apps.utils import extract_rowkey_information, query_main_table_from_rowkey
 from apps.plotting import legacy_normalizer, convolve, sigmoid_normalizer
 from apps.statistics import dic_names
 
@@ -1712,7 +1713,7 @@ def query_db():
                     "",
                     to_search,
                     "*",
-                    0, True, True
+                    0, False, False
                 )
                 results.putAll(result)
             clientP_.setRangeScan(False)
@@ -1731,12 +1732,7 @@ def query_db():
             )
 
         # extract objectId and times
-        # objectids = [i[1]['i:objectId'] for i in results.items()]
-        # times = [float(i[1]['key:key'].split('_')[1]) for i in results.items()]
-        objectids = [i[1]['i:objectId_jd'].split('_')[0] for i in results.items()]
-        rowkeys = [i[1]['i:objectId_jd'] for i in results.items()]
-        times = [float(i[1]['i:objectId_jd'].split('_')[1]) for i in results.items()]
-        pdf_ = pd.DataFrame({'oid': objectids, 'jd': times, 'rowkeys': rowkeys})
+        pdf_ = extract_rowkey_information(results)
 
         # Filter by time - logic to be improved...
         if startdate is not None:
@@ -1745,18 +1741,7 @@ def query_db():
         # groupby and keep only the last alert per objectId
         pdf_ = pdf_.loc[pdf_.groupby('oid')['jd'].idxmax()]
 
-        # Get data from the main table
-        results = java.util.TreeMap()
-        for rowkey in pdf_['rowkeys'].values:
-            to_evaluate = "key:key:{}".format(rowkey)
-
-            result = client.scan(
-                "",
-                to_evaluate,
-                "*",
-                0, True, True
-            )
-            results.putAll(result)
+        results = query_main_table_from_rowkey(client, pdf_['rowkeys'].values)
         schema_client = client.schema()
     elif user_group == 2:
         if int(request.json['window']) > 180:
@@ -1776,9 +1761,12 @@ def query_db():
             "",
             to_evaluate,
             "*",
-            0, True, True
+            0, False, False
         )
-        schema_client = clientT.schema()
+        # extract objectId and times
+        pdf_ = extract_rowkey_information(results)
+        results = query_main_table_from_rowkey(client, pdf_['rowkeys'].values)
+        schema_client = client.schema()
 
     # reset the limit in case it has been changed above
     client.setLimit(nlimit)
