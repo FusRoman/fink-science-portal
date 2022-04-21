@@ -78,6 +78,8 @@ def return_object_pdf(payload: dict) -> pd.DataFrame:
         cols += ',i:ndethist,i:drb,i:classtar,i:jd,i:jdstarthist'
         cols += ',d:rf_kn_vs_nonkn,d:tracklet'
 
+        cols = cols.replace('v:classification', '').replace(',,', ',')
+
         truncated = False
 
     if ',' in payload['objectId']:
