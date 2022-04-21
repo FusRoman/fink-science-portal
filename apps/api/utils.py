@@ -66,6 +66,20 @@ def return_object_pdf(payload: dict) -> pd.DataFrame:
     else:
         cols = '*'
 
+    if cols == '*':
+        truncated = False
+    else:
+        truncated = True
+
+    if 'v:classification' in cols:
+        # add required columns for the classification
+        cols += ',d:cdsxmatch,d:roid,d:mulens'
+        cols += ',d:snn_snia_vs_nonia,d:snn_sn_vs_all,d:rf_snia_vs_nonia'
+        cols += ',i:ndethist,i:drb,i:classtar,i:jd,i:jdstarthist'
+        cols += ',d:rf_kn_vs_nonkn,d:tracklet'
+
+        truncated = False
+
     if ',' in payload['objectId']:
         # multi-objects search
         splitids = payload['objectId'].split(',')
@@ -83,11 +97,6 @@ def return_object_pdf(payload: dict) -> pd.DataFrame:
         withupperlim = True
     else:
         withupperlim = False
-
-    if cols == '*':
-        truncated = False
-    else:
-        truncated = True
 
     # Get data from the main table
     results = java.util.TreeMap()

@@ -88,6 +88,10 @@ def test_column_selection() -> None:
 
     assert len(pdf.columns) == 2, 'I count {} columns'.format(len(pdf.columns))
 
+    pdf = get_an_object(oid=OID, columns='i:objectId,v:classification')
+
+    assert not pdf.empty
+
 def test_column_length() -> None:
     """
     Examples
